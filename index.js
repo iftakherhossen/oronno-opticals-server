@@ -1,6 +1,6 @@
-const express = require('express')
-const { MongoClient } = require('mongodb');
+const express = require('express');
 const cors = require('cors');
+const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
 
@@ -31,6 +31,22 @@ async function run() {
             res.send(products);
         })
 
+        // GET Single Products API
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const productById = await productsCollection.findOne(query);
+            res.send(productById);
+        })
+
+        // Use POST to get data by keys
+        app.post('/products/byKeys', async (req, res) => {
+            const keys = req.body;
+            const query = { key: { $in: keys } };
+            const products = await productsCollection.find(query).toArray();
+            res.json(products);
+        })
+
         // GET Limited Products API
         app.get('/limitedProducts', async (req, res) => {
             const cursor = productsCollection.find({});
@@ -54,44 +70,44 @@ async function run() {
         })
 
         // GET Users API for Admin Role
-        app.get('/users/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const user = await usersCollection.findOne(query);
-            let isAdmin = false;
-            if (user?.role === 'admin') {
-                isAdmin = true;
-            }
-            res.json({ admin: isAdmin })
-        })
+        // app.get('/users/:email', async (req, res) => {
+        //     const email = req.params.email;
+        //     const query = { email: email };
+        //     const user = await usersCollection.findOne(query);
+        //     let isAdmin = false;
+        //     if (user?.role === 'admin') {
+        //         isAdmin = true;
+        //     }
+        //     res.json({ admin: isAdmin })
+        // })
 
         // Update Users
-        app.put('/users', async (req, res) => {
-            const user = req.body;
-            const filter = { email: user.email };
-            const options = { upsert: true };
-            const updateDoc = { $set: user };
-            const result = await usersCollection.updateOne(filter, updateDoc, options);
-            res.json(result)
-        })
+        // app.put('/users', async (req, res) => {
+        //     const user = req.body;
+        //     const filter = { email: user.email };
+        //     const options = { upsert: true };
+        //     const updateDoc = { $set: user };
+        //     const result = await usersCollection.updateOne(filter, updateDoc, options);
+        //     res.json(result)
+        // })
 
         // PUT & Verify Admin API
-        app.put('/users/admin', async (req, res) => {
-            const user = req.body;
-            const requester = user.email;
-            if (requester) {
-                const requesterAccount = await usersCollection.findOne({ email: requester })
-                if (requesterAccount.role === 'admin') {
-                    const filter = { email: user.email };
-                    const updateDoc = { $set: { role: 'admin' } };
-                    const result = await usersCollection.updateOne(filter, updateDoc);
-                    res.json(result);
-                }
-            }
-            else {
-                res.status(403).json({ message: 'You do not have any access to make an admin!' })
-            }
-        })
+        // app.put('/users/admin', async (req, res) => {
+        //     const user = req.body;
+        //     const requester = user.email;
+        //     if (requester) {
+        //         const requesterAccount = await usersCollection.findOne({ email: requester })
+        //         if (requesterAccount.role === 'admin') {
+        //             const filter = { email: user.email };
+        //             const updateDoc = { $set: { role: 'admin' } };
+        //             const result = await usersCollection.updateOne(filter, updateDoc);
+        //             res.json(result);
+        //         }
+        //     }
+        //     else {
+        //         res.status(403).json({ message: 'You do not have any access to make an admin!' })
+        //     }
+        // })
     }
     finally {
         // await client.close();
