@@ -23,6 +23,8 @@ async function run() {
         const database = client.db('oronnoOpticals');
         const productsCollection = database.collection('products');
         const usersCollection = database.collection('users');
+        const ordersCollection = database.collection('orders');
+        const reviewsCollection = database.collection('reviews');
 
         // GET Products API
         app.get('/products', async (req, res) => {
@@ -64,9 +66,54 @@ async function run() {
         // POST Users API
         app.post('/users', async (req, res) => {
             const user = req.body;
-            const result = await usersCollection.insertOne(user)
+            const result = await usersCollection.insertOne(user);
             res.json(result);
-            console.log(user, result);
+        })
+
+        // GET Orders API
+        app.get('/orders', async (req, res) => {
+            const cursor = ordersCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        // GET Orders API by Email Address
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            console.log(email)
+            const query = { email: email };
+            const cursor = ordersCollection.find(query);
+            const order = await cursor.toArray();
+            res.json(order);
+        })
+
+        // POST Orders API
+        app.post('/orders', async (req, res) => {
+            const orders = req.body;
+            const result = await ordersCollection.insertOne(orders);
+            res.json(result)
+        })
+
+        // DELETE Single Order API
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        // GET Reviews API
+        app.get('/reviews', async (req, res) => {
+            const cursor = reviewsCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        // POST Reviews API
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.json(result)
         })
 
         // GET Users API for Admin Role
