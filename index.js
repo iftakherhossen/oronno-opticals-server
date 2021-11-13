@@ -33,12 +33,27 @@ async function run() {
             res.send(products);
         })
 
+        // POST Products API
+        app.post('/products', async (req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            res.json(result)
+        })
+
         // GET Single Products API
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const productById = await productsCollection.findOne(query);
             res.send(productById);
+        })
+
+        // DELETE Single Products API
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(query);
+            res.json(result);
         })
 
         // Use POST to get data by keys
@@ -75,8 +90,8 @@ async function run() {
 
         // POST Orders API
         app.post('/orders', async (req, res) => {
-            const orders = req.body;
-            const result = await ordersCollection.insertOne(orders);
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
             res.json(result)
         })
 
@@ -126,17 +141,17 @@ async function run() {
             res.json(result)
         })
 
-        // // GET Users API for Admin Role
-        // app.get('/users/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const query = { email: email };
-        //     const user = await usersCollection.findOne(query);
-        //     let isAdmin = false;
-        //     if (user?.role === 'admin') {
-        //         isAdmin = true;
-        //     }
-        //     res.json({ admin: isAdmin })
-        // })
+        // GET Users API for Admin Role
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin })
+        })
 
         // PUT Admin API
         app.put('/users/admin', async (req, res) => {
