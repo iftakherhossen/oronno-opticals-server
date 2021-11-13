@@ -56,20 +56,6 @@ async function run() {
             res.send(limitedProducts);
         })
 
-        // GET Users API
-        app.get('/users', async (req, res) => {
-            const cursor = usersCollection.find({});
-            const result = await cursor.toArray();
-            res.send(result);
-        })
-
-        // POST Users API
-        app.post('/users', async (req, res) => {
-            const user = req.body;
-            const result = await usersCollection.insertOne(user);
-            res.json(result);
-        })
-
         // GET Orders API
         app.get('/orders', async (req, res) => {
             const cursor = ordersCollection.find({});
@@ -116,7 +102,31 @@ async function run() {
             res.json(result)
         })
 
-        // GET Users API for Admin Role
+        // GET Users API
+        app.get('/users', async (req, res) => {
+            const cursor = usersCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // POST Users API
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.json(result);
+        })
+
+        // Update Users
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = { $set: user };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.json(result)
+        })
+
+        // // GET Users API for Admin Role
         // app.get('/users/:email', async (req, res) => {
         //     const email = req.params.email;
         //     const query = { email: email };
@@ -128,33 +138,15 @@ async function run() {
         //     res.json({ admin: isAdmin })
         // })
 
-        // Update Users
-        // app.put('/users', async (req, res) => {
-        //     const user = req.body;
-        //     const filter = { email: user.email };
-        //     const options = { upsert: true };
-        //     const updateDoc = { $set: user };
-        //     const result = await usersCollection.updateOne(filter, updateDoc, options);
-        //     res.json(result)
-        // })
-
-        // PUT & Verify Admin API
-        // app.put('/users/admin', async (req, res) => {
-        //     const user = req.body;
-        //     const requester = user.email;
-        //     if (requester) {
-        //         const requesterAccount = await usersCollection.findOne({ email: requester })
-        //         if (requesterAccount.role === 'admin') {
-        //             const filter = { email: user.email };
-        //             const updateDoc = { $set: { role: 'admin' } };
-        //             const result = await usersCollection.updateOne(filter, updateDoc);
-        //             res.json(result);
-        //         }
-        //     }
-        //     else {
-        //         res.status(403).json({ message: 'You do not have any access to make an admin!' })
-        //     }
-        // })
+        // PUT Admin API
+        app.put('/users/admin', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const filter = { email: user.email };
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        })
     }
     finally {
         // await client.close();
