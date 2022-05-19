@@ -64,13 +64,6 @@ async function run() {
             res.json(products);
         })
 
-        // GET Limited Products API
-        app.get('/limitedProducts', async (req, res) => {
-            const cursor = productsCollection.find({});
-            const limitedProducts = await cursor.limit(6).toArray();
-            res.send(limitedProducts);
-        })
-
         // GET Orders API
         app.get('/orders', async (req, res) => {
             const cursor = ordersCollection.find({});
@@ -93,6 +86,15 @@ async function run() {
             const order = req.body;
             const result = await ordersCollection.insertOne(order);
             res.json(result)
+        })
+
+        // PUT Orders API for changing status
+        app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = req.body;
+            const result = await ordersCollection.updateOne(query, { $set: order });
+            res.json(result);
         })
 
         // DELETE Single Order API
